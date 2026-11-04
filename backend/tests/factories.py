@@ -87,7 +87,7 @@ def make_version(
     data = data or b"%PDF-1.4 test " + uuid.uuid4().bytes
     if number is None:
         number = document.versions.count() + 1
-    key = new_storage_key(document.owner_id, "documents")
+    key = new_storage_key(document.owner_id)
     get_storage().put(key, io.BytesIO(data), "application/pdf")
     return DocumentVersion.objects.create(
         document=document,

@@ -9,6 +9,8 @@ api_v1: list[URLPattern | URLResolver] = [
     path("auth/", include("apps.accounts.urls")),
     path("", include("apps.applications.urls")),
     path("", include("apps.reminders.urls")),
+    path("", include("apps.documents.urls")),
+    path("", include("apps.jobdescriptions.urls")),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="api-docs"),
 ]

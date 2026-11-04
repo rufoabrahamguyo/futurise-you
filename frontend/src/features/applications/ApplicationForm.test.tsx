@@ -17,6 +17,7 @@ describe("add application", () => {
     const api = fakeApi().on("POST", "/applications", { status: 201, body: makeApp() });
     renderRoutes(routes, "/applications/new");
     const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Enter details manually/ }));
 
     await user.type(screen.getByLabelText("Job title"), "Backend Engineer");
     await user.type(screen.getByLabelText("Company"), "Acme");
@@ -42,6 +43,7 @@ describe("add application", () => {
     const api = fakeApi();
     renderRoutes(routes, "/applications/new");
     const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Enter details manually/ }));
     await user.type(screen.getByLabelText(/Job listing link/), "not a link");
     await user.click(screen.getByRole("button", { name: "Save application" }));
     expect(await screen.findByText("Enter the job title.")).toBeInTheDocument();
@@ -63,10 +65,57 @@ describe("add application", () => {
     });
     renderRoutes(routes, "/applications/new");
     const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Enter details manually/ }));
     await user.type(screen.getByLabelText("Job title"), "Engineer");
     await user.type(screen.getByLabelText("Company"), "Acme");
     await user.click(screen.getByRole("button", { name: "Save application" }));
     expect(await screen.findByText("Company not found.")).toBeInTheDocument();
     expect(screen.getByLabelText("Company")).toHaveAttribute("aria-invalid", "true");
+  });
+});
+
+describe("add application from a job description", () => {
+  const jd = "Senior Engineer\nRequirements: five years of Python experience.";
+
+  it("saves the application first, then the pasted job description", async () => {
+    const api = fakeApi()
+      .on("POST", "/applications", { status: 201, body: makeApp() })
+      .on("POST", "/applications/a1/job-description/paste", { status: 201, body: {} });
+    const { router } = renderRoutes(routes, "/applications/new");
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Paste the job description/ }));
+    await user.type(screen.getByLabelText("Job title"), "Senior Engineer");
+    await user.type(screen.getByLabelText("Company"), "Acme");
+    await user.type(screen.getByLabelText("Job description text"), jd);
+    await user.click(screen.getByRole("button", { name: "Save application" }));
+
+    expect(await screen.findByRole("heading", { name: "Application page" })).toBeInTheDocument();
+    expect(router.state.location.search).toBe("?tab=job-description");
+    const posts = api.calls
+      .filter((c) => c.method === "POST" && c.path !== "/auth/csrf")
+      .map((c) => c.path);
+    expect(posts).toEqual(["/applications", "/applications/a1/job-description/paste"]);
+  });
+
+  it("keeps the application when saving the job description fails", async () => {
+    fakeApi()
+      .on("POST", "/applications", { status: 201, body: makeApp() })
+      .on("POST", "/applications/a1/job-description/paste", {
+        status: 500,
+        body: { error: { code: "error", message: "Storage unavailable.", details: {} } },
+      });
+    renderRoutes(routes, "/applications/new");
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Paste the job description/ }));
+    await user.type(screen.getByLabelText("Job title"), "Senior Engineer");
+    await user.type(screen.getByLabelText("Company"), "Acme");
+    await user.type(screen.getByLabelText("Job description text"), jd);
+    await user.click(screen.getByRole("button", { name: "Save application" }));
+    expect(
+      await screen.findByText(
+        /Application saved, but the job description wasn't: Storage unavailable/,
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Application page" })).toBeInTheDocument();
   });
 });

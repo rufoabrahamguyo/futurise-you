@@ -4,7 +4,7 @@
 permanent record: the original job description, the exact files you submitted,
 what happened afterwards, reminders, and AI-assisted interview preparation.
 
-> Status: Phase 1 (Foundation) complete. See `docs/IMPLEMENTATION_PLAN.md`.
+> Status: Phases 1–2 (Foundation, Application Vault) complete. See `docs/IMPLEMENTATION_PLAN.md`.
 
 ## Quick start
 
@@ -65,6 +65,18 @@ cd e2e && npm ci && npx playwright install chromium && npx playwright test
 
 CI (`.github/workflows/ci.yml`) runs all of the above on every push and pull request.
 
+## What works so far
+
+- Accounts: register, email verification (Mailpit), sign in/out, password reset, profile and time zone.
+- Applications: create (manually, from pasted text, or from an uploaded PDF/DOCX job description), edit,
+  soft delete with 30-day restore, search and filters; Kanban (drag and drop or keyboard), table and
+  calendar views; every status change is recorded on the timeline.
+- Document Library: upload PDF/DOCX (PNG/JPG for certificates and portfolios), immutable versions,
+  version history, where each version is used, PDF.js and image preview, archive.
+- Application record: Overview, Job Description (original text and file kept unchanged), Documents
+  (exact versions; frozen automatically on the first move to Applied; later files labelled
+  "Added after submission"), Questions & Answers, Timeline, record completeness.
+
 ## Security model (summary)
 
 - Session authentication with HttpOnly, SameSite=Lax cookies and CSRF tokens; no
@@ -73,3 +85,6 @@ CI (`.github/workflows/ci.yml`) runs all of the above on every push and pull req
   return 404. `tests/test_cross_user_access.py` checks every endpoint.
 - Rate limits on sign-in (5 per 15 minutes per IP and email), registration,
   password reset, uploads and AI.
+- Files live in a private bucket. Downloads go through an ownership check that returns a presigned
+  URL valid for at most 5 minutes; storage keys are opaque (see `docs/DECISIONS.md` D-019).
+- Uploads are checked by content and extension, limited to 10 MB; legacy `.doc` is rejected.

@@ -11,13 +11,24 @@ import { ApiError, errorMessage } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import type { Application } from "@/lib/types";
 
+import { JobDescriptionTab } from "@/features/jobdescriptions/JobDescriptionTab";
+
 import { ApplicationForm } from "./ApplicationForm";
 import { useApplication, useDeleteApplication, useUpdateApplication } from "./api";
 import { CompletenessPanel } from "./Completeness";
+import { DocumentsTab } from "./DocumentsTab";
 import { OverviewTab } from "./OverviewTab";
+import { QuestionsTab } from "./QuestionsTab";
 import { StatusSelect, useStatusChanger } from "./StatusControl";
+import { TimelineTab } from "./TimelineTab";
 
-const TABS = [{ id: "overview", label: "Overview" }];
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "job-description", label: "Job Description" },
+  { id: "documents", label: "Documents" },
+  { id: "questions", label: "Questions & Answers" },
+  { id: "timeline", label: "Timeline" },
+];
 
 export function ApplicationDetailPage() {
   const { id = "" } = useParams();
@@ -114,6 +125,12 @@ function ApplicationRecord({ app }: { app: Application }) {
           />
           <TabPanel id={tab} idPrefix="app">
             {tab === "overview" ? <OverviewTab app={app} /> : null}
+            {tab === "job-description" ? <JobDescriptionTab app={app} /> : null}
+            {tab === "documents" ? <DocumentsTab app={app} /> : null}
+            {tab === "questions" ? <QuestionsTab app={app} /> : null}
+            {tab === "timeline" ? (
+              <TimelineTab app={app} initialType={params.get("record") ?? undefined} />
+            ) : null}
           </TabPanel>
         </div>
         <aside className="order-first xl:order-none">

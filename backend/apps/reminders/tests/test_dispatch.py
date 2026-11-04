@@ -33,11 +33,17 @@ def test_dispatch_notifies_and_emails_once(django_capture_on_commit_callbacks) -
 
 
 @pytest.mark.django_db
-def test_email_respects_channel_preference_and_verification(django_capture_on_commit_callbacks) -> None:
+def test_email_respects_channel_preference_and_verification(
+    django_capture_on_commit_callbacks,
+) -> None:
     past = timezone.now() - timedelta(minutes=1)
     ReminderFactory(remind_at=past, channels=["in_app"])
-    ReminderFactory(application=ApplicationFactory(owner=UserFactory(email_notifications=False)), remind_at=past)
-    ReminderFactory(application=ApplicationFactory(owner=UserFactory(email_verified_at=None)), remind_at=past)
+    ReminderFactory(
+        application=ApplicationFactory(owner=UserFactory(email_notifications=False)), remind_at=past
+    )
+    ReminderFactory(
+        application=ApplicationFactory(owner=UserFactory(email_verified_at=None)), remind_at=past
+    )
     with django_capture_on_commit_callbacks(execute=True):
         assert dispatch_due_reminders() == 3
     assert Notification.objects.count() == 3
@@ -45,7 +51,9 @@ def test_email_respects_channel_preference_and_verification(django_capture_on_co
 
 
 @pytest.mark.django_db
-def test_failed_email_retries_without_duplicate_notification(django_capture_on_commit_callbacks) -> None:
+def test_failed_email_retries_without_duplicate_notification(
+    django_capture_on_commit_callbacks,
+) -> None:
     reminder = ReminderFactory(remind_at=timezone.now() - timedelta(minutes=1))
     with mock.patch("apps.reminders.tasks.send_mail", side_effect=ConnectionError("SMTP down")):
         dispatch_due_reminders()

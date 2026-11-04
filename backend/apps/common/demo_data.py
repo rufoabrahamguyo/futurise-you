@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 from datetime import timedelta
 
+from django.db import models
 from django.utils import timezone
 
 from apps.accounts.models import User
@@ -17,7 +18,7 @@ from apps.common.files import validate_file
 from apps.common.pdf import text_pdf
 from apps.companies.models import get_or_create_company
 from apps.documents import services as documents
-from apps.documents.models import DocumentVersion
+from apps.documents.models import ApplicationDocument, DocumentVersion
 from apps.jobdescriptions.services import save_pasted
 from apps.reminders.models import Reminder
 
@@ -397,7 +398,16 @@ def build_demo_account(email: str, password: str) -> User:
             .values_list("occurred_at", flat=True)
             .first()
         )
-        latest = app.activities.order_by("-occurred_at").values_list("occurred_at", flat=True).first()
+        latest = (
+            app.activities.order_by("-occurred_at").values_list("occurred_at", flat=True).first()
+        )
+        if applied:
+            # Demo data only: backdate the freeze time to match the simulated history.
+            # The model layer blocks updates to frozen rows, so bypass it explicitly.
+            models.QuerySet.update(
+                ApplicationDocument.objects.filter(application=app, is_frozen=True),
+                frozen_at=applied,
+            )
         Application.objects.filter(pk=app.pk).update(
             created_at=start,
             updated_at=latest or start,

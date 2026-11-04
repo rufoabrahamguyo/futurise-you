@@ -37,7 +37,13 @@ def test_create_rejects_other_users_application(api: APIClient, other_user) -> N
     foreign = ApplicationFactory(owner=other_user)
     response = api.post(
         "/api/v1/reminders",
-        {"application_id": str(foreign.id), "type": "other", "title": "x", "remind_at": timezone.now().isoformat(), "channels": ["in_app"]},
+        {
+            "application_id": str(foreign.id),
+            "type": "other",
+            "title": "x",
+            "remind_at": timezone.now().isoformat(),
+            "channels": ["in_app"],
+        },
     )
     assert response.status_code == 400
     assert response.json()["error"]["details"]["application_id"] == ["Application not found."]
@@ -47,7 +53,13 @@ def test_requires_at_least_one_channel(api: APIClient, user) -> None:
     app = ApplicationFactory(owner=user)
     response = api.post(
         "/api/v1/reminders",
-        {"application_id": str(app.id), "type": "other", "title": "x", "remind_at": timezone.now().isoformat(), "channels": []},
+        {
+            "application_id": str(app.id),
+            "type": "other",
+            "title": "x",
+            "remind_at": timezone.now().isoformat(),
+            "channels": [],
+        },
     )
     assert response.status_code == 400
 
@@ -87,7 +99,9 @@ def test_complete_and_cancel(api: APIClient, user) -> None:
 
 
 def test_rescheduling_a_sent_reminder_makes_it_pending_again(api: APIClient, user) -> None:
-    reminder = ReminderFactory(application=ApplicationFactory(owner=user), status="sent", sent_at=timezone.now())
+    reminder = ReminderFactory(
+        application=ApplicationFactory(owner=user), status="sent", sent_at=timezone.now()
+    )
     Notification.objects.create(owner=user, reminder=reminder, kind="reminder", title="t")
     later = (timezone.now() + timedelta(days=2)).isoformat()
     body = api.patch(f"/api/v1/reminders/{reminder.id}", {"remind_at": later}).json()

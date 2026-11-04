@@ -38,7 +38,7 @@ def save_pasted(application: Application, text: str) -> JobDescription:
 @transaction.atomic
 def save_uploaded(application: Application, file: ValidatedFile) -> JobDescription:
     _ensure_absent(application)
-    key = new_storage_key(str(application.owner_id), "job-descriptions")
+    key = new_storage_key(str(application.owner_id))
     text = extract_text(file.data, file.mime_type)[:MAX_TEXT_CHARS]
     get_storage().put(key, file.stream(), file.mime_type)
     try:

@@ -69,7 +69,7 @@ def freeze_submission(application: Application, *, user: User) -> list[str]:
 
 
 def _store(owner_id: object, validated: ValidatedFile) -> str:
-    key = new_storage_key(str(owner_id), "documents")
+    key = new_storage_key(str(owner_id))
     get_storage().put(key, validated.stream(), validated.mime_type)
     return key
 

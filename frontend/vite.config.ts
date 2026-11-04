@@ -17,6 +17,8 @@ export default defineConfig({
       "/api": { target: apiTarget, changeOrigin: false },
     },
   },
+  // Pre-bundle lazily imported deps so the dev server never reloads mid-session.
+  optimizeDeps: { include: ["pdfjs-dist"] },
   build: { sourcemap: true },
   test: {
     environment: "jsdom",

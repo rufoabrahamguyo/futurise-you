@@ -176,3 +176,31 @@ Three items, each worth a third:
 Because the move freezes files, the UI always confirms the first move to
 Applied (from any view) and shows the no-CV warning inside that confirmation.
 The API itself never blocks: it returns `warnings: ["no_cv"]`.
+
+## D-019 Opaque storage keys
+
+A presigned URL necessarily contains the object key. Keys are therefore opaque:
+`u/<HMAC(SECRET_KEY, user id)[:32]>/<random hex>`. They reveal no user ID,
+filename or document type, and are never returned by the API on their own.
+Account deletion removes every key recorded in the database and then anything
+left under the user's prefix.
+
+## D-020 Starting an application from a job description
+
+Starting from a pasted or uploaded job description still asks for the job title
+and company (two short fields), because an application needs them. The
+application is saved first and the job description second, so a failed upload
+never loses what the user typed; AI extraction can then refine the fields after
+review.
+
+## D-021 Inline uploads and the library
+
+Files uploaded from an application's Documents tab create a document with
+`is_master = false` unless the user ticks "Also keep it in my Document Library".
+Such documents are hidden from the library by default and are removed by the
+purge job once no application references them.
+
+## D-022 Local rate limits
+
+`.env.example` sets `THROTTLE_REGISTER=200/h` so end-to-end runs can create many
+accounts from one IP. Production uses the code default (10/h) unless configured.

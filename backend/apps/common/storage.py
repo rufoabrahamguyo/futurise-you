@@ -4,6 +4,8 @@ Storage keys are generated here, stored only on the server and never returned
 by the API. Clients receive short-lived presigned URLs from authorized endpoints.
 """
 
+import hashlib
+import hmac
 import threading
 import uuid
 from collections.abc import Iterator
@@ -18,12 +20,16 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 
 
-def new_storage_key(owner_id: uuid.UUID | str, category: str) -> str:
-    return f"users/{owner_id}/{category}/{uuid.uuid4().hex}"
-
-
 def user_prefix(owner_id: uuid.UUID | str) -> str:
-    return f"users/{owner_id}/"
+    """An opaque per-user prefix: presigned URLs reveal no user ID or file name."""
+    digest = hmac.new(
+        settings.SECRET_KEY.encode(), f"storage-user:{owner_id}".encode(), hashlib.sha256
+    ).hexdigest()
+    return f"u/{digest[:32]}/"
+
+
+def new_storage_key(owner_id: uuid.UUID | str) -> str:
+    return f"{user_prefix(owner_id)}{uuid.uuid4().hex}"
 
 
 def content_disposition(filename: str, *, inline: bool) -> str:

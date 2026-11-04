@@ -7,6 +7,8 @@ from django.db import models
 from django.utils import timezone
 
 from apps.accounts.models import User
+from apps.ai.models import InterviewPreparation
+from apps.ai.schemas import LIST_FIELDS
 from apps.applications.models import (
     ActivityType,
     Application,
@@ -19,7 +21,8 @@ from apps.common.pdf import text_pdf
 from apps.companies.models import get_or_create_company
 from apps.documents import services as documents
 from apps.documents.models import ApplicationDocument, DocumentVersion
-from apps.jobdescriptions.services import save_pasted
+from apps.jobdescriptions.models import JobDescription
+from apps.jobdescriptions.services import approve_review, save_pasted
 from apps.reminders.models import Reminder
 
 CV_V1 = [
@@ -304,6 +307,51 @@ def _version(
     return documents.create_document(user, title=title, type=type, file=file)
 
 
+def _extract_and_review(jd: JobDescription) -> None:
+    """Runs the (fake) extraction synchronously and approves it, as a user would."""
+    from apps.ai.tasks import extract_job_description
+
+    JobDescription.objects.filter(pk=jd.pk).update(extraction_status="queued")
+    extract_job_description(str(jd.pk))
+    jd.refresh_from_db()
+    output = jd.raw_ai_output["output"] if jd.raw_ai_output else {}
+
+    def scalar(key: str) -> str | None:
+        item = output.get(key)
+        return item["value"] if item else None
+
+    lists = {key: [item["value"] for item in output.get(key, [])] for key in LIST_FIELDS}
+    deadline = output.get("deadline") or {}
+    approve_review(
+        jd,
+        {
+            "job_title": scalar("job_title"),
+            "company": scalar("company"),
+            "location": "London, UK",
+            "employment_type": "full_time",
+            "work_arrangement": "hybrid",
+            "compensation": scalar("compensation"),
+            "deadline_text": deadline.get("value"),
+            "deadline": None,
+            **lists,
+        },
+    )
+
+
+def _interview_prep(app: Application) -> None:
+    from apps.ai.services import prep_inputs
+    from apps.ai.tasks import generate_interview_prep
+
+    refs, missing = prep_inputs(app)
+    prep = InterviewPreparation.objects.create(
+        application=app,
+        input_references=refs,
+        missing_inputs=missing,
+        user_notes="Lead with the clinic scheduling redesign. Bring the before/after metrics.",
+    )
+    generate_interview_prep(str(prep.pk))
+
+
 def build_demo_account(email: str, password: str) -> User:
     now = timezone.now()
     user = User.objects.create_user(
@@ -312,6 +360,7 @@ def build_demo_account(email: str, password: str) -> User:
         full_name="Jordan Avery",
         timezone="Europe/London",
         email_verified_at=now,
+        ai_acknowledged_at=now,
     )
     cv1 = _version(user, "Product Designer CV", "cv", CV_V1, "Jordan-Avery-CV.pdf")
     cover = _version(
@@ -352,7 +401,9 @@ def build_demo_account(email: str, password: str) -> User:
             recruiter_email=spec.recruiter[1] if spec.recruiter else "",
         )
         if spec.jd:
-            save_pasted(app, spec.jd)
+            jd = save_pasted(app, spec.jd)
+            if spec.statuses[-1] == "interview":
+                _extract_and_review(jd)
         for key in spec.attach:
             version = files.get(key)
             if key == "cv2":
@@ -376,6 +427,8 @@ def build_demo_account(email: str, password: str) -> User:
                 body=body,
                 occurred_at=now - timedelta(days=days),
             )
+        if spec.statuses[-1] == "interview":
+            _interview_prep(app)
         for type, title, days in spec.reminders:
             Reminder.objects.create(
                 owner=user,

@@ -204,3 +204,34 @@ purge job once no application references them.
 
 `.env.example` sets `THROTTLE_REGISTER=200/h` so end-to-end runs can create many
 accounts from one IP. Production uses the code default (10/h) unless configured.
+
+## D-023 AI pipeline details
+
+- Prompts wrap each untrusted block in `<<<NAME_START>>> … <<<NAME_END>>>` and
+  neutralise marker look-alikes inside the content (`<<<` → `‹‹‹`), so a
+  document cannot close its own block. The system prompt says to ignore any
+  instructions inside the blocks.
+- Output is validated with Pydantic (`extra="forbid"`). On invalid output the
+  request is repeated once with a stricter instruction; a second failure marks
+  the job `failed` with code `invalid_output`. Provider/network errors give
+  `provider_unavailable`. Failures only change the job status.
+- Quote verification compares whitespace-normalised quotes against the
+  whitespace-normalised source, case-sensitively. Unsupported values are
+  replaced with null and listed in `raw_ai_output.discarded`.
+- Budgets: job description ≤ 48,000 characters, CV ≤ 24,000 characters
+  (≈ 12k/6k tokens, as the PRD suggests); truncation is recorded.
+- The daily AI limit counts requests since local midnight in the user's time
+  zone (`AI_DAILY_LIMIT`, default 25). A per-hour burst throttle also applies.
+- CV and cover letter text is extracted on demand for each interview-prep run
+  and never stored.
+- On review approval, non-empty reviewed values overwrite the matching
+  application fields (title, company, location, employment type, work
+  arrangement, compensation, deadline). Empty values leave fields unchanged.
+
+## D-024 Reminder rescheduling
+
+Editing the time of a reminder that was already sent makes it pending again and
+removes its old notification, so it is delivered once at the new time.
+Completed and cancelled reminders cannot be edited (409). Completing a non
+follow-up reminder records a timeline entry; completing a follow-up asks the
+user to record what happened instead.

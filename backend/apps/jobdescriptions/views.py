@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 
 from apps.applications.models import Application
 from apps.applications.views import get_active_application
+from apps.common.auth import request_user
 from apps.common.files import read_upload, validate_file
 from apps.common.throttles import ScopedThrottle
 from apps.documents.serializers import DownloadSerializer
@@ -17,7 +18,12 @@ from apps.documents.views import presigned_download
 
 from . import services
 from .models import JobDescription
-from .serializers import JobDescriptionSerializer, PasteSerializer, UploadSerializer
+from .serializers import (
+    JobDescriptionSerializer,
+    PasteSerializer,
+    ReviewSerializer,
+    UploadSerializer,
+)
 
 
 def get_job_description(application: Application) -> JobDescription:
@@ -89,3 +95,28 @@ class FileDownloadView(APIView):
             mime_type=jd.original_file_mime,
             inline=request.query_params.get("inline") == "1",
         )
+
+
+class ExtractView(APIView):
+    """Queues AI extraction (also used to retry). Returns 202 with the record to poll."""
+
+    throttle_classes = [ScopedThrottle]
+    throttle_scope = "ai"
+
+    @extend_schema(request=None, responses={202: JobDescriptionSerializer})
+    def post(self, request: Request, application_pk: Any) -> Response:
+        from apps.ai.services import queue_extraction
+
+        jd = get_job_description(get_active_application(request, application_pk))
+        jd = queue_extraction(jd, request_user(request))
+        return Response(JobDescriptionSerializer(jd).data, status=status.HTTP_202_ACCEPTED)
+
+
+class ReviewView(APIView):
+    @extend_schema(request=ReviewSerializer, responses={200: JobDescriptionSerializer})
+    def put(self, request: Request, application_pk: Any) -> Response:
+        jd = get_job_description(get_active_application(request, application_pk))
+        serializer = ReviewSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        jd = services.approve_review(jd, serializer.validated_data)
+        return Response(JobDescriptionSerializer(jd).data)

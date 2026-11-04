@@ -4,7 +4,7 @@
 permanent record: the original job description, the exact files you submitted,
 what happened afterwards, reminders, and AI-assisted interview preparation.
 
-> Status: Phases 1–2 (Foundation, Application Vault) complete. See `docs/IMPLEMENTATION_PLAN.md`.
+> Status: Phases 1–3 (Foundation, Application Vault, AI and reminders) complete. See `docs/IMPLEMENTATION_PLAN.md`.
 
 ## Quick start
 
@@ -76,6 +76,23 @@ CI (`.github/workflows/ci.yml`) runs all of the above on every push and pull req
 - Application record: Overview, Job Description (original text and file kept unchanged), Documents
   (exact versions; frozen automatically on the first move to Applied; later files labelled
   "Added after submission"), Questions & Answers, Timeline, record completeness.
+
+- AI (fake provider by default): one-time notice, job description extraction with verified quotes,
+  side-by-side review that updates the application only on approval, interview practice questions
+  from the saved record with the required disclaimer, retry on failure, per-user daily limit.
+- Reminders: create/edit/complete/cancel, quick follow-ups, in-app notifications (bell) and email
+  (Mailpit), Beat dispatch every minute, "record what happened" after a follow-up.
+
+## AI configuration
+
+| Variable | Meaning |
+|---|---|
+| `LLM_PROVIDER` | `fake` (default, deterministic, no key) or `openai_compatible` |
+| `LLM_API_BASE`, `LLM_API_KEY`, `LLM_MODEL` | Any OpenAI-compatible Chat Completions endpoint |
+| `AI_DAILY_LIMIT` | AI requests per user per day (default 25) |
+
+With `openai_compatible` but no key, the fake provider is used. Prompts never include names,
+emails or phone numbers; CV contact details are removed before sending.
 
 ## Security model (summary)
 

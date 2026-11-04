@@ -14,6 +14,7 @@ import { formatBytes, formatDateTime } from "@/lib/format";
 import type { Application, JobDescription } from "@/lib/types";
 
 import { jdFilePath, useJobDescription, useSaveJobDescription, useSupplementText } from "./api";
+import { ExtractionPanel } from "./ExtractionPanel";
 import { SaveJobDescriptionForm } from "./JobDescriptionInput";
 
 export function JobDescriptionTab({ app }: { app: Application }) {
@@ -45,6 +46,7 @@ export function JobDescriptionTab({ app }: { app: Application }) {
   }
   return (
     <div className="space-y-6">
+      <ExtractionPanel app={app} jd={jd.data} />
       <OriginalRecord app={app} jd={jd.data} />
     </div>
   );

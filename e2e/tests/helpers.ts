@@ -61,3 +61,26 @@ export async function markApplied(page: Page): Promise<void> {
   await confirm.getByRole("button", { name: /Mark as applied|Continue without a CV/ }).click();
   await expect(page.getByText(/files are locked as sent/)).toBeVisible();
 }
+
+const MAILPIT = process.env.MAILPIT_URL ?? "http://localhost:8025";
+
+interface MailSummary {
+  ID: string;
+  Subject: string;
+}
+
+/** Waits for an email to arrive in Mailpit and returns its plain-text body. */
+export async function waitForEmail(page: Page, to: string, subject: RegExp, timeoutMs = 30_000): Promise<string> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const res = await page.request.get(`${MAILPIT}/api/v1/search?query=${encodeURIComponent(`to:"${to}"`)}`);
+    const data = (await res.json()) as { messages: MailSummary[] };
+    const match = data.messages.find((m) => subject.test(m.Subject));
+    if (match) {
+      const message = (await (await page.request.get(`${MAILPIT}/api/v1/message/${match.ID}`)).json()) as { Text: string };
+      return message.Text;
+    }
+    await page.waitForTimeout(1000);
+  }
+  throw new Error(`No email matching ${subject} for ${to}`);
+}

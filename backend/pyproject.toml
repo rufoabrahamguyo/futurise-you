@@ -17,10 +17,13 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"**/tests/**" = ["S105", "S106", "S108", "S311"]
+"**/tests/**" = ["S105", "S106", "S108", "S311", "E501", "RUF001"]
 "config/settings/test.py" = ["S105"]
 "apps/common/demo_data.py" = ["E501"]
 "apps/common/pdf.py" = ["E501"]
+# Prompt text and fixture phrases read better unwrapped.
+"apps/ai/prompts.py" = ["E501", "RUF001"]
+"apps/ai/fake.py" = ["E501", "RUF001"]
 
 [tool.mypy]
 python_version = "3.13"

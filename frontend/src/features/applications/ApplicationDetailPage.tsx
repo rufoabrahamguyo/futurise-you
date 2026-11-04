@@ -11,7 +11,9 @@ import { ApiError, errorMessage } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import type { Application } from "@/lib/types";
 
+import { InterviewPrepTab } from "@/features/ai/InterviewPrepTab";
 import { JobDescriptionTab } from "@/features/jobdescriptions/JobDescriptionTab";
+import { RemindersTab } from "@/features/reminders/RemindersTab";
 
 import { ApplicationForm } from "./ApplicationForm";
 import { useApplication, useDeleteApplication, useUpdateApplication } from "./api";
@@ -28,6 +30,8 @@ const TABS = [
   { id: "documents", label: "Documents" },
   { id: "questions", label: "Questions & Answers" },
   { id: "timeline", label: "Timeline" },
+  { id: "reminders", label: "Reminders" },
+  { id: "interview-prep", label: "Interview Prep" },
 ];
 
 export function ApplicationDetailPage() {
@@ -131,6 +135,8 @@ function ApplicationRecord({ app }: { app: Application }) {
             {tab === "timeline" ? (
               <TimelineTab app={app} initialType={params.get("record") ?? undefined} />
             ) : null}
+            {tab === "reminders" ? <RemindersTab app={app} /> : null}
+            {tab === "interview-prep" ? <InterviewPrepTab app={app} /> : null}
           </TabPanel>
         </div>
         <aside className="order-first xl:order-none">

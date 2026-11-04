@@ -47,7 +47,11 @@ def owned_by_a(user_a: Any) -> dict[str, Any]:
     jd = jd_services.save_uploaded(
         jd_app, validate_file(text_pdf(["Spec"]), "jd.pdf", allow_images=False)
     )
+    from apps.ai.models import InterviewPreparation
+
+    prep = InterviewPreparation.objects.create(application=app, status="failed", user_notes="mine")
     return {
+        "prep": prep,
         "document": document,
         "version": version,
         "link": link,
@@ -185,6 +189,35 @@ ATTEMPTS: list[Attempt] = [
         lambda o: f"/api/v1/applications/{o['jd_app'].id}/job-description/text",
         lambda o: {"text": "x" * 40},
     ),
+    Attempt(
+        "run extraction",
+        "post",
+        lambda o: f"/api/v1/applications/{o['jd_app'].id}/job-description/extract",
+    ),
+    Attempt(
+        "approve review",
+        "put",
+        lambda o: f"/api/v1/applications/{o['jd_app'].id}/job-description/review",
+        lambda o: {"job_title": "x"},
+    ),
+    Attempt(
+        "list interview prep", "get", lambda o: f"/api/v1/applications/{o['app'].id}/interview-prep"
+    ),
+    Attempt(
+        "generate interview prep",
+        "post",
+        lambda o: f"/api/v1/applications/{o['app'].id}/interview-prep",
+    ),
+    Attempt("read interview prep", "get", lambda o: f"/api/v1/interview-preps/{o['prep'].id}"),
+    Attempt(
+        "edit prep notes",
+        "patch",
+        lambda o: f"/api/v1/interview-preps/{o['prep'].id}",
+        lambda o: {"user_notes": "x"},
+    ),
+    Attempt(
+        "retry interview prep", "post", lambda o: f"/api/v1/interview-preps/{o['prep'].id}/retry"
+    ),
     # Related IDs in request bodies are ownership-checked too.
     Attempt(
         "use company id",
@@ -236,6 +269,9 @@ def test_other_users_records_are_invisible(
     assert owned["document"].archived_at is None
     assert owned["document"].title != "x"
     assert owned["document"].versions.count() == 1
+    owned["prep"].refresh_from_db()
+    assert owned["prep"].user_notes == "mine"
+    assert owned["jd"].__class__.objects.get(pk=owned["jd"].pk).reviewed_data is None
     owned["link"].refresh_from_db()
     assert owned["link"].role == "cv"
 

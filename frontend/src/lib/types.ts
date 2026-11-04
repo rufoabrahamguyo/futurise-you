@@ -308,3 +308,25 @@ export interface JobDescription {
   created_at: string;
   updated_at: string;
 }
+
+export interface InterviewPrepContent {
+  technical_questions: { question: string; why_asked: string; answer_outline: string[] }[];
+  behavioral_questions: { question: string; why_asked: string; star_hint: string }[];
+  cv_questions: { question: string; cv_evidence: string }[];
+  role_questions: { question: string; why_asked: string }[];
+  preparation_topics: string[];
+}
+
+export interface InterviewPreparation {
+  id: string;
+  status: AsyncStatus;
+  content: InterviewPrepContent | null;
+  input_references: Record<string, unknown>;
+  missing_inputs: string[];
+  user_notes: string;
+  error: string;
+  model_name: string;
+  prompt_version: string;
+  created_at: string;
+  updated_at: string;
+}

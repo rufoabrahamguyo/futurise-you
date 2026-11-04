@@ -6,6 +6,7 @@ import { Button } from "@/components/Button";
 import { Icon, type IconName } from "@/components/Icon";
 import { Logo } from "@/components/Logo";
 import { useToast } from "@/components/Toast";
+import { AINoticeProvider } from "@/features/ai/AINotice";
 import { useCurrentUser, useLogout } from "@/features/auth/hooks";
 import { api, errorMessage } from "@/lib/api";
 import { initials } from "@/lib/format";
@@ -169,7 +170,9 @@ export function AppLayout() {
       </header>
       <VerifyBanner />
       <main id="main" className="mx-auto max-w-7xl px-4 py-6 sm:px-8 sm:py-8">
-        <Outlet />
+        <AINoticeProvider>
+          <Outlet />
+        </AINoticeProvider>
       </main>
     </div>
   );

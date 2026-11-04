@@ -10,6 +10,7 @@ import { ResetPasswordPage } from "@/features/auth/ResetPasswordPage";
 import { VerifyEmailPage } from "@/features/auth/VerifyEmailPage";
 import { DashboardPage } from "@/features/dashboard/DashboardPage";
 import { DocumentLibraryPage } from "@/features/documents/DocumentLibraryPage";
+import { RemindersPage } from "@/features/reminders/RemindersPage";
 
 import { AppLayout } from "./AppLayout";
 import { NotFoundPage, RouteErrorPage } from "./ErrorPages";
@@ -41,6 +42,7 @@ export const routes: RouteObject[] = [
               { path: "/applications/new", element: <NewApplicationPage /> },
               { path: "/applications/:id", element: <ApplicationDetailPage /> },
               { path: "/documents", element: <DocumentLibraryPage /> },
+              { path: "/reminders", element: <RemindersPage /> },
               { path: "*", element: <NotFoundPage /> },
             ],
           },

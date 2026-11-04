@@ -53,7 +53,11 @@ export function fakeApi(): FakeApi {
       const result =
         typeof route.handler === "function" ? (route.handler as Handler)(body, url) : route.handler;
       const wrapped =
-        result && typeof result === "object" && "status" in result
+        // `{ status: <number>, body }` is a wrapper; records with a string `status` field are bodies.
+        result &&
+        typeof result === "object" &&
+        "status" in result &&
+        typeof result.status === "number"
           ? (result as { status: number; body?: unknown })
           : { status: 200, body: result };
       if (wrapped.status === 204) return new Response(null, { status: 204 });

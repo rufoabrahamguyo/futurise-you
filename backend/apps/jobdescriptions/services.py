@@ -1,4 +1,7 @@
+from typing import Any
+
 from django.db import transaction
+from django.utils import timezone
 
 from apps.applications.models import ActivityType, Application
 from apps.applications.services import record_activity
@@ -6,6 +9,7 @@ from apps.common.exceptions import Conflict
 from apps.common.files import ValidatedFile
 from apps.common.storage import get_storage, new_storage_key
 from apps.common.text_extraction import extract_text
+from apps.companies.models import get_or_create_company
 
 from .models import JobDescription, SourceType, TextSource
 
@@ -79,5 +83,49 @@ def supplement_text(jd: JobDescription, text: str) -> JobDescription:
     jd.save(update_fields=["original_text", "text_source", "updated_at"])
     record_activity(
         jd.application, ActivityType.JOB_DESCRIPTION, "Added the job description text (pasted)"
+    )
+    return jd
+
+
+APPLICATION_FIELDS = (
+    "job_title",
+    "location",
+    "employment_type",
+    "work_arrangement",
+    "compensation",
+    "deadline",
+)
+
+
+@transaction.atomic
+def approve_review(jd: JobDescription, data: dict[str, Any]) -> JobDescription:
+    """Saves the user's reviewed data and only now copies it onto the application."""
+    jd = (
+        JobDescription.objects.select_for_update()
+        .select_related("application__company")
+        .get(pk=jd.pk)
+    )
+    application = jd.application
+    payload = {**data, "deadline": data["deadline"].isoformat() if data.get("deadline") else None}
+    jd.reviewed_data = payload
+    jd.reviewed_at = timezone.now()
+    jd.save(update_fields=["reviewed_data", "reviewed_at", "updated_at"])
+
+    changed: list[str] = []
+    for field in APPLICATION_FIELDS:
+        value = data.get(field)
+        if value and getattr(application, field) != value:
+            setattr(application, field, value)
+            changed.append(field)
+    if data.get("company") and data["company"].lower() != application.company.name.lower():
+        application.company = get_or_create_company(application.owner, data["company"])
+        changed.append("company")
+    if changed:
+        application.save()
+    record_activity(
+        application,
+        ActivityType.EXTRACTION_REVIEWED,
+        "Reviewed and approved the job description details",
+        metadata={"updated_fields": changed},
     )
     return jd

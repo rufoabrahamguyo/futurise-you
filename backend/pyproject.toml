@@ -1,0 +1,48 @@
+[project]
+name = "applyvault-backend"
+version = "1.0.0"
+requires-python = ">=3.13"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ", "S", "SIM", "RUF", "LOG", "G"]
+ignore = [
+  "S101",   # assert is fine in tests
+  "RUF012", # Django/DRF class attributes are not mutable-default bugs
+  "DJ001",  # nullable CharFields are intentional where used
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S105", "S106", "S108", "S311"]
+"config/settings/test.py" = ["S105"]
+
+[tool.mypy]
+python_version = "3.13"
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+exclude = ["migrations/", "tests/", "conftest.py"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*", "*.tests.*", "conftest"]
+ignore_errors = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+addopts = "-ra --strict-markers"
+filterwarnings = ["ignore::DeprecationWarning:celery.*"]
+
+[tool.coverage.run]
+source = ["apps"]
+omit = ["*/migrations/*", "*/tests/*"]

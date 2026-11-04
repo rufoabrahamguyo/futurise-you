@@ -1,0 +1,10 @@
+{% autoescape off %}Hi{% if user.full_name %} {{ user.full_name }}{% endif %},
+
+Welcome to ApplyVault. Please confirm your email address so we can send you reminders:
+
+{{ link }}
+
+If you did not create an account, you can ignore this email.
+
+ApplyVault — Your job search, organized.
+{% endautoescape %}

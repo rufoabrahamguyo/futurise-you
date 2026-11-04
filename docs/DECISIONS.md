@@ -142,3 +142,37 @@ Pydantic models define the strict output schemas.
 
 `pypdf` instead of `pdfplumber` for PDF text (pure Python, smaller image,
 adequate for text-layer PDFs; OCR is out of scope). `python-docx` for DOCX.
+
+## D-015 Dashboard definitions
+
+- **In progress** = Preparing + Applied + Assessment (as in the PRD).
+- **Interviewing** = applications whose status is Interview. (The brief's
+  "interviews scheduled" is shown as upcoming interview reminders in the
+  reminders list; the tile counts applications at the interview stage, which is
+  always accurate even when no reminder was set.)
+- **Follow-ups due** = open follow-up reminders due in the next 7 days or overdue.
+
+## D-016 Record completeness rules
+
+Three items, each worth a third:
+1. Job description: a saved job description with text or an original file.
+2. Submitted documents: at least one frozen attachment.
+3. Application history: at least one status change or user-recorded activity.
+   System entries such as "created" or "job description saved" don't count.
+
+## D-017 Local infrastructure
+
+- The `minio/minio` Docker Hub image is no longer published, so local storage
+  uses `cgr.dev/chainguard/minio` (current MinIO releases). The backend creates
+  the private bucket at startup (`ensure_bucket`), so no `mc` container is needed.
+- Postgres and the backend publish no host ports (they commonly collide with
+  other local projects). The frontend dev server proxies `/api`, so the API and
+  its docs are at `http://localhost:5173/api/v1/…`.
+- Django 6.1 deprecates `EMAIL_*` settings; email is configured with `MAILERS`
+  from the same environment variables.
+
+## D-018 First move to Applied is confirmed in the UI
+
+Because the move freezes files, the UI always confirms the first move to
+Applied (from any view) and shows the no-CV warning inside that confirmation.
+The API itself never blocks: it returns `warnings: ["no_cv"]`.

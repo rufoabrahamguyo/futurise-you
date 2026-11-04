@@ -5,8 +5,11 @@ from django.db.models import Case, Exists, IntegerField, OuterRef, Q, QuerySet, 
 from apps.documents.models import ApplicationDocument
 from apps.jobdescriptions.models import JobDescription
 
-from .models import ActivityType, Application, ApplicationActivity
+from .models import MANUAL_ACTIVITY_TYPES, ActivityType, Application, ApplicationActivity
 from .statuses import STATUS_ORDER
+
+# History means something happened: a status change or an activity the user recorded.
+HISTORY_ACTIVITY_TYPES = [ActivityType.STATUS_CHANGE, *MANUAL_ACTIVITY_TYPES]
 
 COMPLETENESS_ITEMS = (
     ("has_job_description", "job_description", "Job description saved"),
@@ -26,9 +29,12 @@ def with_record_flags(qs: QuerySet[Application]) -> QuerySet[Application]:
         has_submitted_documents=Exists(
             ApplicationDocument.objects.filter(application=OuterRef("pk"), is_frozen=True)
         ),
+        has_cv_attached=Exists(
+            ApplicationDocument.objects.filter(application=OuterRef("pk"), role="cv")
+        ),
         has_history=Exists(
-            ApplicationActivity.objects.filter(application=OuterRef("pk")).exclude(
-                type=ActivityType.CREATED
+            ApplicationActivity.objects.filter(
+                application=OuterRef("pk"), type__in=HISTORY_ACTIVITY_TYPES
             )
         ),
     )

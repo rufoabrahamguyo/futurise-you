@@ -1,0 +1,12 @@
+{% autoescape off %}{{ reminder.title }}
+
+{{ application.job_title }} at {{ application.company.name }}
+{{ when }}
+{% if reminder.notes %}
+{{ reminder.notes }}
+{% endif %}
+Open the application: {{ link }}
+
+You can turn off reminder emails in Settings.
+ApplyVault — Your job search, organized.
+{% endautoescape %}

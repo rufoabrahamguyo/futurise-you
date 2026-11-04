@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/*
+ * ApplyVault theme: warm paper background, deep pine brand, ink text.
+ * Every text/background pair used below meets WCAG AA (4.5:1) contrast.
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+
+  --color-paper: #f6f4ef;
+  --color-surface: #ffffff;
+  --color-line: #e3dfd5;
+  --color-line-strong: #cfc9bb;
+
+  --color-ink-900: #1c2321;
+  --color-ink-700: #3a4441;
+  --color-ink-500: #5c6662;
+  --color-ink-400: #737c78;
+
+  --color-pine-50: #eef5f3;
+  --color-pine-100: #d6e8e3;
+  --color-pine-200: #aed2c8;
+  --color-pine-600: #23615a;
+  --color-pine-700: #1d5049;
+  --color-pine-800: #173f3a;
+  --color-pine-900: #10302c;
+
+  --color-amber-ink: #8a4b06;
+  --color-rose-ink: #a1263b;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-paper text-ink-900 font-sans antialiased;
+  }
+  :focus-visible {
+    @apply outline-pine-600 outline-2 outline-offset-2;
+  }
+  h1,
+  h2 {
+    @apply font-serif tracking-tight;
+  }
+}
+
+@utility card {
+  @apply border-line bg-surface rounded-xl border shadow-[0_1px_2px_rgba(28,35,33,0.04)];
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

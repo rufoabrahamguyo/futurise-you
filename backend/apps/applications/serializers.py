@@ -30,6 +30,7 @@ class CompletenessSerializer(serializers.Serializer[None]):
 class ApplicationListSerializer(serializers.ModelSerializer[Application]):
     company = CompanySerializer(read_only=True)
     completeness = serializers.SerializerMethodField()
+    has_cv_attached = serializers.BooleanField(read_only=True, default=False)
 
     class Meta:
         model = Application
@@ -45,6 +46,7 @@ class ApplicationListSerializer(serializers.ModelSerializer[Application]):
             "date_applied",
             "submitted_at",
             "completeness",
+            "has_cv_attached",
             "created_at",
             "updated_at",
             "deleted_at",

@@ -235,3 +235,20 @@ removes its old notification, so it is delivered once at the new time.
 Completed and cancelled reminders cannot be edited (409). Completing a non
 follow-up reminder records a timeline entry; completing a follow-up asks the
 user to record what happened instead.
+
+## D-025 Accessibility checks are automated
+
+`e2e/tests/accessibility.spec.ts` runs axe (WCAG 2.1 A/AA rules) on every main
+screen and every application tab at 1280 px and 375 px and fails on serious or
+critical issues; it also asserts nothing overflows the viewport horizontally.
+It found and fixed: muted text below 4.5:1 (ink-400 darkened to `#656e6a`),
+visually-hidden labels widening the page inside scroll containers, and a grid
+item that couldn't shrink on small screens.
+
+## D-026 Production layout
+
+Production uses `backend/Dockerfile.prod` (gunicorn, non-root, static files
+collected at build) and `frontend/Dockerfile.prod` (nginx serving the built SPA,
+proxying `/api`, with a strict Content-Security-Policy that allows only the
+storage origin for presigned files). `docker-compose.prod.yml` assumes external
+S3 and SMTP and TLS terminated in front. See `docs/DEPLOYMENT.md`.

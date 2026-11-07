@@ -343,3 +343,62 @@ class MetaView(APIView):
                 "ai_daily_limit": settings.AI_DAILY_LIMIT,
             }
         )
+
+
+class AnalyticsView(APIView):
+    """Basic analytics: counts by status, submissions over time, record completeness."""
+
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    def get(self, request: Request) -> Response:
+        user = request.user
+        assert isinstance(user, User)
+        apps = with_record_flags(owned_applications(user).active())
+        by_status = dict(
+            apps.values_list("status").annotate(n=Count("id")).values_list("status", "n")
+        )
+
+        tz = zoneinfo.ZoneInfo(user.timezone)
+        today = timezone.now().astimezone(tz).date()
+        this_monday = today - timedelta(days=today.weekday())
+        first_week = this_monday - timedelta(weeks=11)
+        applied_dates = apps.filter(date_applied__gte=first_week).values_list(
+            "date_applied", flat=True
+        )
+        weeks = {first_week + timedelta(weeks=i): 0 for i in range(12)}
+        for applied in applied_dates:
+            if applied is not None:
+                monday = applied - timedelta(days=applied.weekday())
+                if monday in weeks:
+                    weeks[monday] += 1
+
+        flags = apps.aggregate(
+            total=Count("id"),
+            job_description=Count("id", filter=Q(has_job_description=True)),
+            submitted_documents=Count("id", filter=Q(has_submitted_documents=True)),
+            history=Count("id", filter=Q(has_history=True)),
+            complete=Count(
+                "id",
+                filter=Q(has_job_description=True, has_submitted_documents=True, has_history=True),
+            ),
+        )
+        total = flags["total"]
+        preserved = flags["job_description"] + flags["submitted_documents"] + flags["history"]
+        return Response(
+            {
+                "by_status": [{"status": s, "count": by_status.get(s, 0)} for s in STATUS_ORDER],
+                "submitted_per_week": [
+                    {"week_start": week.isoformat(), "count": count}
+                    for week, count in weeks.items()
+                ],
+                "completeness": {
+                    "percent": round(preserved * 100 / (total * 3)) if total else 0,
+                    "complete_records": flags["complete"],
+                    "total": total,
+                    "items": {
+                        "job_description": flags["job_description"],
+                        "submitted_documents": flags["submitted_documents"],
+                        "history": flags["history"],
+                    },
+                },
+            }
+        )

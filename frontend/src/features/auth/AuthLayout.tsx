@@ -16,30 +16,26 @@ export function AuthLayout({
 }) {
   return (
     <div className="flex min-h-dvh flex-col lg:flex-row">
-      <aside className="bg-pine-900 text-pine-50 relative hidden flex-col justify-between overflow-hidden p-10 lg:flex lg:w-[44%]">
-        <Link to="/" className="relative z-10 inline-flex">
-          <Logo inverted />
-        </Link>
-        <div className="relative z-10 max-w-md">
-          <p className="font-serif text-3xl leading-snug text-white">
-            Every application deserves its own permanent record.
-          </p>
-          <p className="text-pine-100 mt-4">
-            Keep the job description, the exact files you sent and everything that happened after —
-            in one place you can trust months later.
-          </p>
+      <aside className="relative hidden min-h-dvh overflow-hidden lg:block lg:w-1/2">
+        <img src="/auth-panel.jpg?v=2" alt="" className="absolute inset-0 size-full object-cover" />
+        <div className="from-pine-900/75 via-pine-900/15 to-pine-900/35 absolute inset-0 bg-gradient-to-t" />
+        <div className="relative flex h-full flex-col justify-between p-10 text-white">
+          <Link to="/" className="inline-flex">
+            <Logo inverted />
+          </Link>
+          <div className="max-w-md">
+            <p className="text-3xl leading-snug font-semibold">
+              Every application deserves its own permanent record.
+            </p>
+            <p className="text-pine-100 mt-4">
+              Keep the job description, the exact files you sent and everything that happened after
+              — in one place you can trust months later.
+            </p>
+          </div>
+          <p className="text-pine-100 text-sm">Your job search, organized.</p>
         </div>
-        <p className="text-pine-200 relative z-10 text-sm">Your job search, organized.</p>
-        <div
-          aria-hidden="true"
-          className="absolute -right-24 -bottom-24 size-96 rounded-full border border-white/10"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute -right-8 -bottom-8 size-64 rounded-full border border-white/10"
-        />
       </aside>
-      <main className="flex flex-1 items-center justify-center px-5 py-10 sm:px-8">
+      <main className="bg-paper flex flex-1 items-center justify-center px-5 py-10 sm:px-8">
         <div className="w-full max-w-sm">
           <Link to="/" className="mb-8 inline-flex lg:hidden">
             <Logo />

@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router";
 import { z } from "zod";
 
 import { Button } from "@/components/Button";
@@ -9,6 +9,7 @@ import { Field, FormError, Input } from "@/components/Field";
 import { applyServerErrors } from "@/lib/forms";
 
 import { AuthLayout } from "./AuthLayout";
+import { ContinueWithGoogle, googleErrorMessage } from "./GoogleButton";
 import { useLogin } from "./hooks";
 
 const schema = z.object({
@@ -21,7 +22,9 @@ export function LoginPage() {
   const login = useLogin();
   const navigate = useNavigate();
   const location = useLocation();
+  const [params] = useSearchParams();
   const [formError, setFormError] = useState<string | null>(null);
+  const googleError = googleErrorMessage(params.get("error"));
   const { register, handleSubmit, setError, formState } = useForm<Values>({
     resolver: zodResolver(schema),
   });
@@ -44,7 +47,7 @@ export function LoginPage() {
       subtitle="Sign in to your vault."
       footer={
         <>
-          New to ApplyVault?{" "}
+          New to KaziTrail?{" "}
           <Link
             to="/register"
             className="text-pine-700 font-medium underline-offset-2 hover:underline"
@@ -54,8 +57,9 @@ export function LoginPage() {
         </>
       }
     >
+      <ContinueWithGoogle />
       <form onSubmit={onSubmit} noValidate className="space-y-5">
-        <FormError message={formError} />
+        <FormError message={formError ?? googleError} />
         <Field label="Email" error={formState.errors.email?.message}>
           {(a) => <Input {...a} type="email" autoComplete="email" {...register("email")} />}
         </Field>

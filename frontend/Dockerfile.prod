@@ -1,0 +1,14 @@
+# Production image: build the SPA, serve it with nginx, proxy /api to the backend.
+FROM node:24-slim AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM nginx:1.29-alpine
+COPY docker/nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=build /app/dist /usr/share/nginx/html
+ENV BACKEND_URL=http://backend:8000 \
+    STORAGE_ORIGIN=https://storage.example.com
+EXPOSE 8080

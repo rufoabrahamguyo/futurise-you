@@ -113,6 +113,11 @@ CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = env.bool("CSRF_COOKIE_SECURE", default=True)
 CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=["http://localhost:5173"])
 FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:5173")
+# Optional. When both are set, sign-in and sign-up offer Continue with Google.
+GOOGLE_CLIENT_ID = env("GOOGLE_CLIENT_ID", default="")
+GOOGLE_CLIENT_SECRET = env("GOOGLE_CLIENT_SECRET", default="")
+# Public callback the browser returns to. Defaults to {FRONTEND_URL}/api/v1/auth/google/callback.
+GOOGLE_OAUTH_REDIRECT_URI = env("GOOGLE_OAUTH_REDIRECT_URI", default="")
 
 # --- DRF ----------------------------------------------------------------------
 REST_FRAMEWORK = {
@@ -139,7 +144,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "ApplyVault API",
+    "TITLE": "KaziTrail API",
     "DESCRIPTION": "Your job search, organized.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
@@ -199,7 +204,7 @@ MAILERS = {
         },
     }
 }
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="ApplyVault <no-reply@applyvault.local>")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="KaziTrail <no-reply@kazitrail.local>")
 
 # --- Object storage -----------------------------------------------------------
 STORAGE_BACKEND = env("STORAGE_BACKEND", default="s3")  # s3 | memory

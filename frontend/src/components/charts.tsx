@@ -4,8 +4,8 @@
  */
 import { useId, useState, type KeyboardEvent } from "react";
 
-const SERIES = "#23615a"; // pine-600
-const GRID = "#e3dfd5"; // line
+const SERIES = "#005b96"; // pine-600
+const GRID = "#b3cde0"; // line
 
 interface Point {
   label: string;

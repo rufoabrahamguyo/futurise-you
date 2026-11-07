@@ -8,7 +8,7 @@ import { errorMessage } from "@/lib/api";
 function FullPageSpinner() {
   return (
     <div className="text-pine-700 flex min-h-dvh items-center justify-center">
-      <Spinner className="size-6" label="Loading ApplyVault" />
+      <Spinner className="size-6" label="Loading KaziTrail" />
     </div>
   );
 }

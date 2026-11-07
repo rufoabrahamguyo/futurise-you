@@ -101,7 +101,7 @@ export function ApplicationTable({
 
   return (
     <div className={`card overflow-hidden ${apps.isPlaceholderData ? "opacity-60" : ""}`}>
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">
             {trash ? "Deleted applications" : "Applications"}, {count} total

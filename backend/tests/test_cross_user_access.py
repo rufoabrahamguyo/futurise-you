@@ -50,7 +50,16 @@ def owned_by_a(user_a: Any) -> dict[str, Any]:
     from apps.ai.models import InterviewPreparation
 
     prep = InterviewPreparation.objects.create(application=app, status="failed", user_notes="mine")
+    from apps.exports.models import ExportJob
+
+    export = ExportJob.objects.create(
+        owner=user_a,
+        status="succeeded",
+        storage_key="u/a/export",
+        expires_at="2099-01-01T00:00:00Z",
+    )
     return {
+        "export": export,
         "prep": prep,
         "document": document,
         "version": version,
@@ -218,6 +227,7 @@ ATTEMPTS: list[Attempt] = [
     Attempt(
         "retry interview prep", "post", lambda o: f"/api/v1/interview-preps/{o['prep'].id}/retry"
     ),
+    Attempt("download export", "get", lambda o: f"/api/v1/exports/{o['export'].id}/download"),
     # Related IDs in request bodies are ownership-checked too.
     Attempt(
         "use company id",
@@ -283,7 +293,12 @@ def test_lists_never_include_other_users_records(user, other_api: APIClient) -> 
         "/api/v1/applications?trash=1",
         "/api/v1/reminders",
         "/api/v1/notifications",
+        "/api/v1/documents",
+        "/api/v1/documents?archived=1&include_non_master=1",
     ]:
         assert other_api.get(url).json()["count"] == 0, url
+    assert other_api.get("/api/v1/exports").json() == []
     summary = other_api.get("/api/v1/dashboard/summary").json()
     assert summary["counts"]["total"] == 0
+    assert other_api.get("/api/v1/analytics").json()["completeness"]["total"] == 0
+    assert other_api.get("/api/v1/notifications/unread-count").json() == {"count": 0}

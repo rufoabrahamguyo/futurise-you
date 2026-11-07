@@ -1,0 +1,27 @@
+# Production image: runtime dependencies only, non-root, gunicorn.
+FROM python:3.13-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DJANGO_SETTINGS_MODULE=config.settings.prod
+
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+
+RUN useradd --create-home --uid 1000 app
+COPY --chown=app:app . .
+
+# Static files for the admin are collected at build time with throwaway values;
+# real settings come from the environment at runtime.
+RUN DJANGO_SECRET_KEY=build-only DJANGO_ALLOWED_HOSTS=build DATABASE_URL=postgres://u:p@h/db \
+    REDIS_URL=redis://h:6379/0 S3_BUCKET=b S3_ACCESS_KEY_ID=k S3_SECRET_ACCESS_KEY=s \
+    FRONTEND_URL=https://build CSRF_TRUSTED_ORIGINS=https://build \
+    python manage.py collectstatic --noinput
+
+USER app
+EXPOSE 8000
+ENTRYPOINT ["/app/docker/entrypoint.sh"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "60", "--access-logfile", "-", "--forwarded-allow-ips", "*"]

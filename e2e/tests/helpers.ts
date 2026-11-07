@@ -5,7 +5,7 @@ import { expect, type Page } from "@playwright/test";
 export const PASSWORD = "e2e-passphrase-2026";
 
 export function uniqueEmail(prefix: string): string {
-  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1e6)}@e2e.applyvault.test`;
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1e6)}@e2e.kazitrail.test`;
 }
 
 export async function register(page: Page, name = "Riley Tester"): Promise<string> {

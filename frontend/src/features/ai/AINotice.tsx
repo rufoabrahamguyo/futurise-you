@@ -27,7 +27,7 @@ export function AINoticeContent() {
   return (
     <div className="text-ink-700 space-y-3 text-sm">
       <p>
-        ApplyVault uses an AI provider to read your saved material and suggest structured details or
+        KaziTrail uses an AI provider to read your saved material and suggest structured details or
         practice questions.
       </p>
       <div>

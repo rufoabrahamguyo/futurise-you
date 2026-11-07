@@ -1,4 +1,4 @@
-# ApplyVault — Product Requirements (Master Build Prompt)
+# KaziTrail — Product Requirements (Master Build Prompt)
 
 > Provided by the product owner. Where this document conflicts with
 > `docs/BUILD_BRIEF.md`, the build brief wins (it resolves open decisions).
@@ -10,13 +10,13 @@
 
 ## SYSTEM ROLE
 
-You are a senior full-stack engineer and product architect. You will build **ApplyVault**, a production-quality SaaS web application, end to end. You have full autonomy to make reasonable technical decisions within the constraints below. You must prioritize correctness, security, data integrity, and clean, maintainable code over feature quantity. Do not skip steps. Do not leave TODOs. Every module you deliver must be functional, tested, and documented.
+You are a senior full-stack engineer and product architect. You will build **KaziTrail**, a production-quality SaaS web application, end to end. You have full autonomy to make reasonable technical decisions within the constraints below. You must prioritize correctness, security, data integrity, and clean, maintainable code over feature quantity. Do not skip steps. Do not leave TODOs. Every module you deliver must be functional, tested, and documented.
 
 ---
 
 ## PRODUCT OVERVIEW
 
-**ApplyVault** — "Your job search, organized."
+**KaziTrail** — "Your job search, organized."
 
 A web-based job application management platform for all job seekers (students, graduates, career switchers, experienced professionals). Every job application gets its own permanent, organized record: job description, exact documents submitted, status history, timeline, reminders, and AI-assisted preparation.
 

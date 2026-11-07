@@ -1,30 +1,31 @@
 @import "tailwindcss";
 
 /*
- * ApplyVault theme: warm paper background, deep pine brand, ink text.
+ * KaziTrail theme: cool paper background, navy brand, ink text.
+ * Token names stay `pine` so existing utilities pick up the blue palette.
  * Every text/background pair used below meets WCAG AA (4.5:1) contrast.
  */
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-serif: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-  --color-paper: #f6f4ef;
+  --color-paper: #f4f8fb;
   --color-surface: #ffffff;
-  --color-line: #e3dfd5;
-  --color-line-strong: #cfc9bb;
+  --color-line: #b3cde0;
+  --color-line-strong: #6497b1;
 
-  --color-ink-900: #1c2321;
-  --color-ink-700: #3a4441;
-  --color-ink-500: #5c6662;
-  --color-ink-400: #737c78;
+  --color-ink-900: #011f4b;
+  --color-ink-700: #03396c;
+  --color-ink-500: #005b96;
+  --color-ink-400: #005b96;
 
-  --color-pine-50: #eef5f3;
-  --color-pine-100: #d6e8e3;
-  --color-pine-200: #aed2c8;
-  --color-pine-600: #23615a;
-  --color-pine-700: #1d5049;
-  --color-pine-800: #173f3a;
-  --color-pine-900: #10302c;
+  --color-pine-50: #f3f7fa;
+  --color-pine-100: #b3cde0;
+  --color-pine-200: #6497b1;
+  --color-pine-600: #005b96;
+  --color-pine-700: #03396c;
+  --color-pine-800: #03396c;
+  --color-pine-900: #011f4b;
 
   --color-amber-ink: #8a4b06;
   --color-rose-ink: #a1263b;
@@ -43,7 +44,7 @@
   }
   h1,
   h2 {
-    @apply font-serif tracking-tight;
+    @apply font-sans tracking-tight;
   }
 }
 

@@ -8,5 +8,5 @@
 Open the application: {{ link }}
 
 You can turn off reminder emails in Settings.
-ApplyVault — Your job search, organized.
+KaziTrail — Your job search, organized.
 {% endautoescape %}

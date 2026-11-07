@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { z } from "zod";
 
 import { Button } from "@/components/Button";
@@ -9,6 +9,7 @@ import { Field, FormError, Input } from "@/components/Field";
 import { applyServerErrors } from "@/lib/forms";
 
 import { AuthLayout } from "./AuthLayout";
+import { ContinueWithGoogle, googleErrorMessage } from "./GoogleButton";
 import { browserTimeZone, useRegister } from "./hooks";
 
 const schema = z.object({
@@ -21,7 +22,9 @@ type Values = z.infer<typeof schema>;
 export function RegisterPage() {
   const registerUser = useRegister();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const [formError, setFormError] = useState<string | null>(null);
+  const googleError = googleErrorMessage(params.get("error"));
   const { register, handleSubmit, setError, formState } = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { full_name: "", email: "", password: "" },
@@ -57,8 +60,9 @@ export function RegisterPage() {
         </>
       }
     >
+      <ContinueWithGoogle />
       <form onSubmit={onSubmit} noValidate className="space-y-5">
-        <FormError message={formError} />
+        <FormError message={formError ?? googleError} />
         <Field label="Full name" optional error={formState.errors.full_name?.message}>
           {(a) => <Input {...a} autoComplete="name" {...register("full_name")} />}
         </Field>

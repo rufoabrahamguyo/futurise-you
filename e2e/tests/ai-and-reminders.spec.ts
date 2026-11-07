@@ -77,7 +77,7 @@ test("journey 5: set a follow-up, receive it in-app and by email, then record wh
   const email = await register(page);
 
   // Verify the address through the email in Mailpit, so reminder emails are allowed.
-  const verification = await waitForEmail(page, email, /Confirm your ApplyVault email/);
+  const verification = await waitForEmail(page, email, /Confirm your KaziTrail email/);
   const link = /https?:\/\/\S+verify-email\S+/.exec(verification)?.[0] ?? "";
   await page.goto(link);
   await expect(page.getByText("Email confirmed")).toBeVisible();

@@ -6,6 +6,7 @@ from django.contrib.auth import (
     update_session_auth_hash,
 )
 from django.db import transaction
+from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -18,10 +19,12 @@ from rest_framework.views import APIView
 from apps.common.throttles import LoginThrottle, ScopedThrottle
 
 from .emails import send_password_reset_email, send_verification_email
+from .google import begin_google_login, finish_google_login
 from .models import User
 from .serializers import (
     LoginSerializer,
     PasswordChangeSerializer,
+    PasswordConfirmSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
     RegisterSerializer,
@@ -82,6 +85,34 @@ class LoginView(APIView):
         login(request, user)
         assert isinstance(user, User)
         return _user_response(user)
+
+
+class GoogleLoginView(APIView):
+    """Starts Google OAuth. The browser is redirected; no JSON body is returned."""
+
+    permission_classes = [permissions.AllowAny]
+
+    @extend_schema(exclude=True)
+    def get(self, request: Request) -> HttpResponse:
+        return begin_google_login(
+            request._request,
+            request.query_params.get("next"),
+            request.query_params.get("timezone"),
+        )
+
+
+class GoogleCallbackView(APIView):
+    """Completes Google OAuth and opens a normal session."""
+
+    permission_classes = [permissions.AllowAny]
+
+    @extend_schema(exclude=True)
+    def get(self, request: Request) -> HttpResponse:
+        return finish_google_login(
+            request._request,
+            request.query_params.get("code"),
+            request.query_params.get("state"),
+        )
 
 
 class LogoutView(APIView):
@@ -204,3 +235,28 @@ class AIAcknowledgementView(APIView):
             user.ai_acknowledged_at = timezone.now()
             user.save(update_fields=["ai_acknowledged_at", "updated_at"])
         return _user_response(user)
+
+
+class DeleteAccountView(APIView):
+    """Deletes the account permanently after password confirmation, via a retrying job."""
+
+    throttle_classes = [ScopedThrottle]
+    throttle_scope = "password_reset"
+
+    @extend_schema(request=PasswordConfirmSerializer, responses={202: None})
+    def post(self, request: Request) -> Response:
+        from functools import partial
+
+        from .tasks import delete_account
+
+        serializer = PasswordConfirmSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        user = request.user
+        assert isinstance(user, User)
+        # Block sign-in immediately; the job then removes everything.
+        user.is_active = False
+        user.deletion_requested_at = timezone.now()
+        user.save(update_fields=["is_active", "deletion_requested_at", "updated_at"])
+        transaction.on_commit(partial(delete_account.delay, str(user.pk)))
+        logout(request)
+        return Response(status=status.HTTP_202_ACCEPTED)

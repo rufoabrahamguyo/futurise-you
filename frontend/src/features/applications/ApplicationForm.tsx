@@ -145,7 +145,7 @@ export function ApplicationForm({
           label="Job listing link"
           optional
           error={errors.job_url?.message}
-          hint="Saved as a link only. ApplyVault never fetches it."
+          hint="Saved as a link only. KaziTrail never fetches it."
           className="sm:col-span-2"
         >
           {(a) => (

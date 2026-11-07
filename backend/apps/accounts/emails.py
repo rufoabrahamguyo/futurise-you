@@ -14,10 +14,10 @@ def _send(user: User, subject: str, template: str, context: dict[str, str]) -> N
 def send_verification_email(user: User) -> None:
     token = email_verification_token.make_token(user)
     link = f"{settings.FRONTEND_URL}/verify-email?uid={encode_uid(user)}&token={token}"
-    _send(user, "Confirm your ApplyVault email", "emails/verify_email.txt", {"link": link})
+    _send(user, "Confirm your KaziTrail email", "emails/verify_email.txt", {"link": link})
 
 
 def send_password_reset_email(user: User) -> None:
     token = password_reset_token.make_token(user)
     link = f"{settings.FRONTEND_URL}/reset-password?uid={encode_uid(user)}&token={token}"
-    _send(user, "Reset your ApplyVault password", "emails/password_reset.txt", {"link": link})
+    _send(user, "Reset your KaziTrail password", "emails/password_reset.txt", {"link": link})

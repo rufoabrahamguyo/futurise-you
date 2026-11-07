@@ -36,7 +36,7 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
             `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               isActive
                 ? "bg-white/12 text-white"
-                : "text-pine-100 hover:bg-white/8 hover:text-white"
+                : "text-white/80 hover:bg-white/10 hover:text-white"
             }`
           }
         >
@@ -61,7 +61,7 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       <div className="mt-auto border-t border-white/10 pt-4">
         <div className="flex items-center gap-3 px-3">
           <span
-            className="bg-pine-600 flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+            className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white/20 text-xs font-semibold text-white"
             aria-hidden="true"
           >
             {initials(user.full_name, user.email)}
@@ -70,13 +70,13 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             <p className="truncate text-sm font-medium text-white">
               {user.full_name || "Your account"}
             </p>
-            <p className="text-pine-200 truncate text-xs">{user.email}</p>
+            <p className="truncate text-xs text-white/75">{user.email}</p>
           </div>
         </div>
         <button
           type="button"
           onClick={() => logout.mutate(undefined, { onSettled: () => void navigate("/login") })}
-          className="text-pine-100 mt-3 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-white/8 hover:text-white"
+          className="mt-3 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-white/80 hover:bg-white/10 hover:text-white"
         >
           <Icon name="logout" className="size-[18px]" />
           Sign out
@@ -96,7 +96,7 @@ function VerifyBanner() {
   });
   if (user.is_email_verified) return null;
   return (
-    <div className="text-amber-ink border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm sm:px-8">
+    <div className="text-pine-900 border-pine-200 bg-pine-50 border-b px-4 py-2 text-sm sm:px-8">
       <span className="font-medium">Confirm your email</span> so we can send reminder emails to{" "}
       {user.email}.{" "}
       <button

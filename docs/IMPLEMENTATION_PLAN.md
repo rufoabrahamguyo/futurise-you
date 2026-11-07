@@ -79,20 +79,26 @@ DECISIONS updated, status report.
 5. `seed_demo`, production Dockerfiles + `docker-compose.prod.yml`, deployment docs.
 6. Playwright journeys 1–5.
 
+## Status
+
+All four phases are complete (see git history: one commit per phase plus the
+backend foundation). Each phase ended with lint, format, type checks and all
+tests green.
+
 ## Test matrix
 
-| Requirement | Backend tests | Frontend / E2E |
+| Requirement | Backend tests (`backend/`) | Frontend / E2E |
 |---|---|---|
-| FR-01 | `apps/accounts/tests/test_auth.py` | `features/auth/*.test.tsx`, E2E journey 1 |
-| FR-02 | `apps/applications/tests/test_applications_api.py`, `test_status.py` | `ApplicationForm.test.tsx` |
-| FR-03 | `test_dashboard.py` | `ApplicationsPage.test.tsx`, E2E 3 |
-| FR-04 | `apps/jobdescriptions/tests/` | E2E 1 |
-| FR-05 | `apps/ai/tests/test_extraction.py`, `test_quotes.py`, `test_deadline.py`, `test_injection.py` | `ExtractionReview.test.tsx`, E2E 1 |
-| FR-06 | `apps/documents/tests/test_library.py`, `test_validation.py`, `test_immutability.py` | E2E 2 |
-| FR-07 | `apps/documents/tests/test_freeze.py` | `DocumentsTab.test.tsx`, E2E 1, 2 |
-| FR-08 | `apps/applications/tests/test_timeline_qa.py` | E2E 3 |
-| FR-09 | `apps/reminders/tests/` | `RemindersPage.test.tsx`, E2E 5 |
-| FR-10 | `apps/ai/tests/test_interview_prep.py` | `InterviewPrep.test.tsx`, E2E 4 |
-| Cross-user | `tests/test_cross_user_access.py` | — |
-| AI failure keeps data | `apps/ai/tests/test_failures.py` | — |
-| Launch readiness | `test_analytics.py`, `apps/exports/tests/`, `test_purge.py`, `test_account_deletion.py` | — |
+| FR-01 Accounts | `apps/accounts/tests/test_auth.py` | `features/auth/auth.test.tsx`; E2E all journeys register, journey 5 verifies email via Mailpit |
+| FR-02 Applications | `apps/applications/tests/test_applications_api.py`, `test_status.py` | `ApplicationForm.test.tsx`, `ApplicationsPage.test.tsx` |
+| FR-03 Dashboard & views | `test_applications_api.py::test_dashboard_summary` | `ApplicationsPage.test.tsx` (board, table sort, URL view); `e2e/tests/foundation.spec.ts` |
+| FR-04 Job description record | `apps/jobdescriptions/tests/test_job_description.py` | E2E journeys 1 and 3 |
+| FR-05 Extraction & review | `apps/ai/tests/test_extraction.py`, `test_quotes_and_deadlines.py`, `test_injection.py` | `ExtractionPanel.test.tsx`; E2E journey 1 |
+| FR-06 Library & versions | `apps/documents/tests/test_library.py`, `test_validation.py`, `test_immutability.py`, `apps/common/tests/test_s3_storage.py` | E2E journey 2 |
+| FR-07 Submission snapshots | `apps/documents/tests/test_freeze.py`, `apps/applications/tests/test_status.py` | `DocumentsTab.test.tsx`; E2E journeys 1 and 2 |
+| FR-08 Q&A, timeline, notes | `apps/applications/tests/test_timeline_qa.py` | E2E journey 3 |
+| FR-09 Reminders | `apps/reminders/tests/test_reminders_api.py`, `test_dispatch.py` (incl. concurrent workers, email retry) | `Reminders.test.tsx`; E2E journey 5 |
+| FR-10 Interview prep | `apps/ai/tests/test_interview_prep.py` | `InterviewPrepTab.test.tsx`; E2E journey 4 |
+| Cross-user access | `tests/test_cross_user_access.py` (every resource: read, update, delete, download, body IDs, lists) | — |
+| AI failure keeps data | `apps/ai/tests/test_failures.py` | `ExtractionPanel.test.tsx` (failed state) |
+| Launch readiness | `test_analytics.py`, `apps/exports/tests/test_exports.py`, `test_purge.py`, `apps/accounts/tests/test_account_deletion.py`, `test_seed_demo.py`, `apps/ai/tests/test_providers.py` | `SettingsPage.test.tsx`; `e2e/tests/data-rights.spec.ts`, `e2e/tests/accessibility.spec.ts` |

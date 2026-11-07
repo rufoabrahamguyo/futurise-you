@@ -15,7 +15,7 @@ import { CompletenessMeter } from "./Completeness";
 import { StatusSelect, useStatusChanger } from "./StatusControl";
 
 const BOARD_LIMIT = 200;
-const DRAG_TYPE = "application/x-applyvault-id";
+const DRAG_TYPE = "application/x-kazitrail-id";
 
 /**
  * Kanban board. Drag a card between columns (native HTML5 drag and drop), or
@@ -96,7 +96,7 @@ export function ApplicationBoard({ filters }: { filters: ApplicationFilters }) {
         Drag cards between columns, or use each card&apos;s status menu to move it.
       </p>
       <div
-        className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 sm:-mx-8 sm:px-8"
+        className="relative -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 sm:-mx-8 sm:px-8"
         aria-describedby="board-help"
       >
         {meta.data.statuses.map((status) => {

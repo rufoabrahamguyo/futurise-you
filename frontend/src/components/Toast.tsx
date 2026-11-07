@@ -64,9 +64,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: number)
   const tone =
     toast.tone === "error"
       ? "border-rose-200 bg-white text-rose-ink"
-      : toast.tone === "info"
-        ? "border-line bg-white text-ink-900"
-        : "border-pine-200 bg-white text-pine-800";
+      : "border-pine-200 bg-pine-50 text-pine-900";
   return (
     <div
       className={`pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border px-4 py-3 text-sm shadow-lg ${tone}`}

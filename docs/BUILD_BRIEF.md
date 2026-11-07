@@ -1,9 +1,9 @@
-# ApplyVault — Build Brief (lead engineer instructions)
+# KaziTrail — Build Brief (lead engineer instructions)
 
 > Provided by the product owner. This brief wins over `docs/PRD.md` wherever
 > they conflict, because it resolves open decisions.
 
-You are the lead engineer building ApplyVault, a production-quality web SaaS that helps job seekers organize, track and understand every job application. Tagline: "Your job search, organized."
+You are the lead engineer building KaziTrail, a production-quality web SaaS that helps job seekers organize, track and understand every job application. Tagline: "Your job search, organized."
 
 Read docs/PRD.md before doing anything else. It is the product source of truth. If it conflicts with this prompt, this prompt wins because it resolves open decisions. Do not ask me to re-decide anything settled here. If something is unspecified, choose the simplest sound option, record it in docs/DECISIONS.md and continue. Stop to ask only if a choice would be expensive to reverse.
 

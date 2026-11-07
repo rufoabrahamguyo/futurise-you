@@ -11,3 +11,4 @@ djangorestframework-stubs==3.18.2
 types-python-dateutil
 boto3-stubs[s3]
 celery-types
+moto[s3]==5.2.5

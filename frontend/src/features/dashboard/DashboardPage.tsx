@@ -137,7 +137,7 @@ function DashboardContent({ data, timeZone }: { data: DashboardSummary; timeZone
       </ul>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        <section className="card lg:col-span-2" aria-labelledby="recent-heading">
+        <section className="card min-w-0 lg:col-span-2" aria-labelledby="recent-heading">
           <div className="border-line flex items-center justify-between border-b px-5 py-4">
             <h2 id="recent-heading" className="font-sans text-base font-semibold tracking-normal">
               Recently updated
@@ -169,7 +169,7 @@ function DashboardContent({ data, timeZone }: { data: DashboardSummary; timeZone
           </ul>
         </section>
 
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <section className="card p-5" aria-labelledby="upcoming-heading">
             <div className="mb-3 flex items-center justify-between">
               <h2

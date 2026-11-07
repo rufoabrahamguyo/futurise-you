@@ -282,7 +282,7 @@ def interview_prep(prompt: str) -> dict[str, Any]:
 
 class FakeProvider(LLMProvider):
     name = "fake"
-    model = "applyvault-fake-1"
+    model = "kazitrail-fake-1"
 
     def complete(self, system: str, user: str, *, task: str) -> Completion:
         if task == "extraction":
